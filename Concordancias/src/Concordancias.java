@@ -1,6 +1,5 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.Scanner;
 
 public class Concordancias {
 
@@ -24,27 +23,8 @@ public class Concordancias {
         return false;
     }
 
-
-
-    static public void main(String[] args) {
-        String nombreFichero = IO.readln("Dame el nombre del fichero: ");
-        File fichero = new File("datos/"+nombreFichero);
-        boolean quiereSobrescribir = false;
-
-
-        quiereSobrescribir = seQuiereSobrescribirUnFicheroExistente(fichero);
-
-
-        try (FileWriter fileWriter = new FileWriter(fichero, quiereSobrescribir)) {
-            System.out.println("El fichero se ha creado de forma correcta");
-        } catch (IOException e) {
-            System.out.println("No se ha podido crear/acceder el fichero.");
-        }
-
-        int opcion = 0;
-
-        do {
-            imprimirMenu("""
+    private static void imprimirMenu() {
+        System.out.println("""
                     --------------MENÚ PRINCIPAL-----------
                     |1. Añadir Usuario.                   |
                     |2. Mostrar usuarios introducidos.    |
@@ -53,11 +33,63 @@ public class Concordancias {
                     ---------------------------------------
                     
                     """);
-        } while (opcion < 5 && opcion > 0);
-
     }
 
-    private static void imprimirMenu(String x) {
+    private static boolean darMensajeDeErrorYTerminar(String x) throws InterruptedException {
         System.out.println(x);
+        Thread.sleep(1000);
+        return false;
+    }
+
+
+    static public void main(String[] args) throws InterruptedException {
+        String nombreFichero = IO.readln("Dame el nombre del fichero: ");
+        File fichero = new File("datos/" + nombreFichero);
+        boolean quiereSobrescribir = false;
+
+
+        quiereSobrescribir = seQuiereSobrescribirUnFicheroExistente(fichero);
+
+
+        try (FileWriter fileWriter = new FileWriter(fichero, quiereSobrescribir)) {
+            System.out.println("El fichero se ha creado/accedido de forma correcta");
+        } catch (IOException e) {
+            System.out.println("No se ha podido crear/acceder al fichero.");
+        }
+
+        int opcion = 0;
+        boolean seSigue = true;
+
+        do {
+            imprimirMenu();
+
+            try {
+                opcion = Integer.parseInt(IO.readln("¿Qué quieres hacer?\n"));
+
+                Scanner lectorFichero = new Scanner (new BufferedReader(new FileReader(fichero)));
+
+                if        (opcion == 1) {
+                    String usuario = IO.readln("Dame un usuario.(Tiene que estar formateado como U)");
+                    while (lectorFichero.hasNext()) {
+                        String siguienteUsuario;
+
+                    }
+                } else if (opcion == 2) {
+
+                } else if (opcion == 3) {
+
+                } else if (opcion == 4) {
+                    seSigue = false;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("No se ha puesto un número válido, volviendo a intentar...");
+                Thread.sleep(1000);
+            } catch (FileNotFoundException e) {
+                seSigue = darMensajeDeErrorYTerminar("No se ha podido encontrar el fichero, terminando el programa...");
+            } catch (IOException e) {
+                seSigue = darMensajeDeErrorYTerminar("No se ha podido leer el fichero, terminando el programa...");
+            }
+        } while (seSigue);
+
     }
 }
