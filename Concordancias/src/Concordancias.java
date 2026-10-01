@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Concordancias {
@@ -71,7 +72,7 @@ public class Concordancias {
 
     private static void annadirUsuarioAlFichero(int numeroUsuarioActual, boolean quiereSobrescribir, Scanner lectorFichero, FileWriter fileWriter) throws IOException {
         numeroUsuarioActual = conseguirNumeroDeUsuario(numeroUsuarioActual, quiereSobrescribir, lectorFichero);
-        StringBuilder lineaUsuarioNuevo = new StringBuilder("\nU" + numeroUsuarioActual + " ");
+        StringBuilder lineaUsuarioNuevo = new StringBuilder("U" + numeroUsuarioActual + " ");
 
         char quierePonerMasHobbies = 's';
         while (quierePonerMasHobbies == 's') {
@@ -81,11 +82,76 @@ public class Concordancias {
         }
 
         lineaUsuarioNuevo.deleteCharAt(lineaUsuarioNuevo.length() - 1);
+        lineaUsuarioNuevo.append("\n");
 
         fileWriter.write(lineaUsuarioNuevo.toString());
         fileWriter.flush();
 
         System.out.println("Se ha añadido el usuario U" + numeroUsuarioActual);
+    }
+
+    private static void convertirFicheroAArrayBidimensional(Scanner lectorFichero, ArrayList<String[]> usuarios) {
+        while (lectorFichero.hasNextLine()) {
+            usuarios.add(lectorFichero.nextLine().split(" "));
+        }
+    }
+
+    private static void conseguirUsuariosConConcordancia(ArrayList<String[]> usuarios, ArrayList<String> usuariosConConcordancia) {
+        for (int usuario1 = 0; usuario1 < usuarios.size(); usuario1++) {
+            String idUsuario1 = usuarios.get(usuario1)[0];
+            for (int usuario2 = usuario1; usuario2 < usuarios.size(); usuario2++) {
+                String idUsuario2 = usuarios.get(usuario2)[0];
+                StringBuilder annadirUsuariosConcordancia = new StringBuilder();
+
+                int concordancias = 0;
+                for (int hobbyUsuario1 = 1; hobbyUsuario1 < usuarios.get(usuario1).length; hobbyUsuario1++) {
+                    String hobbyActualUsuario1 = usuarios.get(usuario1)[hobbyUsuario1];
+
+                    for (int hobbyUsuario2 = 1; hobbyUsuario2 < usuarios.get(usuario2).length; hobbyUsuario2++) {
+                        String hobbyActualUsuario2 = usuarios.get(usuario2)[hobbyUsuario2];
+
+                        if (hobbyActualUsuario1.equals(hobbyActualUsuario2)
+                                                &&
+                                     idUsuario1.equals(idUsuario2)
+                        ) {
+                            concordancias++;
+                            if (concordancias == 1) {
+                                annadirUsuariosConcordancia.append(usuarios.get(usuario1)[0]);
+                                annadirUsuariosConcordancia.append(" ");
+                                annadirUsuariosConcordancia.append(usuarios.get(usuario2)[0]);
+                            }
+
+                            annadirUsuariosConcordancia.append(" ");
+                            annadirUsuariosConcordancia.append(usuarios.get(usuario1)[hobbyUsuario1]);
+
+                            System.out.println(annadirUsuariosConcordancia);
+                        }
+
+                    }
+                    if (!usuariosConConcordancia.isEmpty())
+                        usuariosConConcordancia.add(annadirUsuariosConcordancia.toString());
+                }
+            }
+        }
+    }
+
+    private static void crearFicheroConcordancia(Scanner lectorFichero) throws IOException {
+        ArrayList<String[]> usuarios = new ArrayList<>();
+        ArrayList<String> usuariosConConcordancia = new ArrayList<>();
+        convertirFicheroAArrayBidimensional(lectorFichero, usuarios);
+
+        conseguirUsuariosConConcordancia(usuarios, usuariosConConcordancia);
+
+
+        if (!usuariosConConcordancia.isEmpty()) {
+            FileWriter ficheroConcordancias = new FileWriter("datos/concordancias.txt");
+
+            for (int cont = 0; cont < usuariosConConcordancia.size(); cont++) {
+                ficheroConcordancias.write(usuariosConConcordancia.get(cont));
+                ficheroConcordancias.write("\n");
+            }
+            ficheroConcordancias.flush();
+        }
     }
 
 
@@ -97,6 +163,7 @@ public class Concordancias {
         quiereAnexarEnElArchivo = seQuiereAnexarAUnFicheroExistente(fichero);
 
         try (FileWriter fileWriter = new FileWriter(fichero, quiereAnexarEnElArchivo)) {
+            if (quiereAnexarEnElArchivo) fileWriter.write("\n");
             System.out.println("El fichero se ha creado/accedido de forma correcta");
 
             int opcion = 0;
@@ -118,7 +185,7 @@ public class Concordancias {
                             imprimirFichero(lectorFichero);
                         }
                     } else if (opcion == 3) {
-
+                        crearFicheroConcordancia(lectorFichero);
                     } else if (opcion == 4) {
                         seSigue = false;
                     }
@@ -136,7 +203,5 @@ public class Concordancias {
         } catch (IOException e) {
             System.out.println("No se ha podido crear/acceder al fichero.");
         }
-
     }
-
 }
