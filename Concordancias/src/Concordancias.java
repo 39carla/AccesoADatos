@@ -193,6 +193,8 @@ public class Concordancias {
             ficheroConcordancias.flush();
 
             System.out.printf("Se han añadido %d concordancias al fichero\n",usuariosConConcordancia.size());
+        } else {
+            System.out.println("No se pudo encontrar ninguna concordancia. No se ha creado el fichero");
         }
     }
 
@@ -235,7 +237,7 @@ public class Concordancias {
                         seSigue = false;
                     }
                 } catch (NumberFormatException e) {
-                    seSigue = darMensajeDeErrorYTerminar("No se ha puesto un número válido, volviendo a intentar...");
+                    seSigue = darMensajeDeErrorYTerminar("No se ha puesto un número válido, terminando programa...");
                 } catch (FileNotFoundException e) {
                     seSigue = darMensajeDeErrorYTerminar("No se ha podido encontrar el fichero, terminando el programa...");
                 } catch (IOException e) {
